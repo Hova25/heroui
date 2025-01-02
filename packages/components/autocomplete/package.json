@@ -54,6 +54,7 @@
     "@nextui-org/spinner": "workspace:*",
     "@nextui-org/use-aria-button": "workspace:*",
     "@nextui-org/use-safe-layout-effect": "workspace:*",
+    "@nextui-org/use-aria-multiselect-autocomplete": "workspace:*",
     "@react-aria/combobox": "3.11.0",
     "@react-aria/focus": "3.19.0",
     "@react-aria/i18n": "3.12.4",
