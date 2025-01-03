@@ -765,6 +765,7 @@ const CustomStylesWithCustomItemsTemplate = ({color, ...args}: AutocompleteProps
             "data-[hover=true]:bg-default-200",
             "data-[selectable=true]:focus:bg-default-100",
             "data-[focus-visible=true]:ring-default-500",
+            "data-[selected=true]:bg-default-100",
           ],
         },
       }}
@@ -1136,6 +1137,15 @@ export const CustomStylesWithCustomItems = {
   render: CustomStylesWithCustomItemsTemplate,
 
   args: {
+    ...defaultProps,
+  },
+};
+
+export const CustomStylesWithCustomItemsAndMultipleSelect = {
+  render: CustomStylesWithCustomItemsTemplate,
+
+  args: {
+    selectionMode: "multiple",
     ...defaultProps,
   },
 };

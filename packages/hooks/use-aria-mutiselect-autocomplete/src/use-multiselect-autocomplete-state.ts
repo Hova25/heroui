@@ -1,5 +1,5 @@
 import {FilterFn} from "@react-stately/combobox";
-import {RefObject, useMemo, useState} from "react";
+import {RefObject, useState} from "react";
 import {MenuTriggerAction} from "@react-types/combobox";
 import {
   AsyncLoadable,
@@ -76,7 +76,10 @@ export function useMultiselectAutocompleteState<T extends object>(
   let [inputValue, setInputValue] = useControlledState(
     props.inputValue,
     props.defaultInputValue || "",
-    props.onInputChange,
+    (value) => {
+      open();
+      props.onInputChange?.(value);
+    },
   );
 
   const [isFocused, setFocused] = useState(false);
@@ -102,6 +105,7 @@ export function useMultiselectAutocompleteState<T extends object>(
         const item = listState.selectionManager.getItemProps(keys.keys().next().value);
 
         setInputValue(item.textValue || item.children);
+        close();
       }
     }
 
@@ -119,15 +123,12 @@ export function useMultiselectAutocompleteState<T extends object>(
     onSelectionChange,
   });
 
-  let originalCollection = listState.collection;
-  let filteredCollection = useMemo(
-    () =>
-      // No default filter if items are controlled.
-      props.items != null || !props.defaultFilter
-        ? listState.collection
-        : filterCollection(listState.collection, inputValue, props.defaultFilter),
-    [listState.collection, inputValue, props.defaultFilter, props.items],
-  );
+  const originalCollection = listState.collection;
+  const filteredCollection = props.defaultFilter
+    ? new ListCollection(
+        filterNodes(listState.collection, listState.collection, inputValue, props.defaultFilter),
+      )
+    : listState;
 
   const validationState = useFormValidationState({
     ...props,
@@ -209,14 +210,6 @@ export function useMultiselectAutocompleteState<T extends object>(
     collection: displayedCollection,
     ...(props.isReadOnly && {disabledKeys: new Set([...listState.collection.getKeys()])}),
   };
-}
-
-function filterCollection<T extends object>(
-  collection: Collection<Node<T>>,
-  inputValue: string,
-  filter: FilterFn,
-): Collection<Node<T>> {
-  return new ListCollection(filterNodes(collection, collection, inputValue, filter));
 }
 
 function filterNodes<T>(

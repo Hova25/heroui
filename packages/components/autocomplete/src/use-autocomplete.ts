@@ -267,9 +267,6 @@ export function useAutocomplete<T extends object>(originalProps: UseAutocomplete
         },
         isClearable: false,
         disableAnimation,
-        classNames: {
-          input: "truncate text-ellipsis whitespace-nowrap overflow-hidden",
-        },
       },
       userInputProps,
     ),
