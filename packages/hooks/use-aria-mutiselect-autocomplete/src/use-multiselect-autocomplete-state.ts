@@ -25,7 +25,6 @@ import {useFormValidationState} from "@react-stately/form";
 import {ListCollection} from "@react-stately/list";
 import {getChildNodes} from "@react-stately/collections";
 
-// ComboBoxProps
 export interface MultiselectAutocomplete extends MultipleSelection {
   /** The value of the ComboBox input (controlled). */
   inputValue?: string;
@@ -157,7 +156,6 @@ export function useMultiselectAutocompleteState<T extends object>(
       validationState.commitValidation();
     }
   };
-
   // todo : optimise this, optimise back and next to, check useComboboxState
   const commit = () => {
     const activeItem =
@@ -172,6 +170,7 @@ export function useMultiselectAutocompleteState<T extends object>(
         listState.selectedKeys.add(selectedKey);
       }
       onSelectionChange(listState.selectedKeys);
+      validationState.commitValidation();
     }
   };
 
@@ -191,6 +190,10 @@ export function useMultiselectAutocompleteState<T extends object>(
     inputValue,
     setInputValue,
     commit,
+    placeholder:
+      listState.selectionMode === "multiple" && listState.selectedKeys.size > 0
+        ? listState.selectedItems?.map((item) => item.textValue).join(", ")
+        : "",
     collection: displayedCollection,
     ...(props.isReadOnly && {disabledKeys: new Set([...listState.collection.getKeys()])}),
   };

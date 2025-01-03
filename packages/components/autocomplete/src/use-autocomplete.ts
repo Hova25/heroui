@@ -198,6 +198,14 @@ export function useAutocomplete<T extends object>(originalProps: UseAutocomplete
   // Setup filter function and state.
   const {contains} = useFilter(filterOptions);
 
+  // Setup refs and get props for child elements.
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const inputWrapperRef = useRef<HTMLDivElement>(null);
+  const listBoxRef = useRef<HTMLUListElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const inputRef = useDOMRef<HTMLInputElement>(ref);
+  const scrollShadowRef = useDOMRef<HTMLElement>(scrollRefProp);
+
   let state = useMultiselectAutocompleteState({
     ...originalProps,
     children,
@@ -212,15 +220,9 @@ export function useAutocomplete<T extends object>(originalProps: UseAutocomplete
         onClose?.();
       }
     },
+    inputRef,
+    listBoxRef,
   });
-
-  // Setup refs and get props for child elements.
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const inputWrapperRef = useRef<HTMLDivElement>(null);
-  const listBoxRef = useRef<HTMLUListElement>(null);
-  const popoverRef = useRef<HTMLDivElement>(null);
-  const inputRef = useDOMRef<HTMLInputElement>(ref);
-  const scrollShadowRef = useDOMRef<HTMLElement>(scrollRefProp);
 
   const {
     buttonProps,
@@ -263,6 +265,9 @@ export function useAutocomplete<T extends object>(originalProps: UseAutocomplete
         },
         isClearable: false,
         disableAnimation,
+        classNames: {
+          input: "truncate text-ellipsis whitespace-nowrap overflow-hidden",
+        },
       },
       userInputProps,
     ),
@@ -438,6 +443,7 @@ export function useAutocomplete<T extends object>(originalProps: UseAutocomplete
       ...inputProps,
       ...slotsProps.inputProps,
       isInvalid,
+      placeholder: state.placeholder || originalProps.placeholder,
       validationBehavior,
       errorMessage:
         typeof errorMessage === "function"
