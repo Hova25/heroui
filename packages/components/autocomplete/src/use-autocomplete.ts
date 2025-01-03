@@ -5,7 +5,7 @@ import {mapPropsVariants, useProviderContext} from "@heroui/system";
 import {useSafeLayoutEffect} from "@heroui/use-safe-layout-effect";
 import {autocomplete} from "@heroui/theme";
 import {useFilter} from "@react-aria/i18n";
-import {FilterFn, useComboBoxState} from "@react-stately/combobox";
+import {FilterFn} from "@react-stately/combobox";
 import {ReactRef, useDOMRef} from "@heroui/react-utils";
 import {ReactNode, useEffect, useMemo, useRef} from "react";
 import {ComboBoxProps} from "@react-types/combobox";
@@ -16,10 +16,14 @@ import {clsx, dataAttr, objectToDeps} from "@heroui/shared-utils";
 import {ScrollShadowProps} from "@heroui/scroll-shadow";
 import {chain, mergeProps} from "@react-aria/utils";
 import {ButtonProps} from "@heroui/button";
-import {AsyncLoadable, PressEvent} from "@react-types/shared";
+import {PressEvent} from "@react-types/shared";
 import {useComboBox} from "@react-aria/combobox";
 import {FormContext, useSlottedContext} from "@heroui/form";
 import {ariaShouldCloseOnInteractOutside} from "@heroui/aria-utils";
+import {
+  MultiSelectAutoCompleteProps,
+  useMultiselectAutocompleteState,
+} from "@nextui-org/use-aria-multiselect-autocomplete";
 
 interface Props<T> extends Omit<HTMLHeroUIProps<"input">, keyof ComboBoxProps<T>> {
   /**
@@ -117,12 +121,14 @@ interface Props<T> extends Omit<HTMLHeroUIProps<"input">, keyof ComboBoxProps<T>
    * @default undefined
    */
   isVirtualized?: boolean;
+  /**
+   * Callback when end of the list is reached.
+   */
+  onEndReached?: () => void;
 }
 
 export type UseAutocompleteProps<T> = Props<T> &
   Omit<InputProps, "children" | "value" | "isClearable" | "defaultValue" | "classNames"> &
-  ComboBoxProps<T> &
-  AsyncLoadable &
   AutocompleteVariantProps & {
     /**
      * The height of each item in the listbox.
@@ -134,7 +140,7 @@ export type UseAutocompleteProps<T> = Props<T> &
      * This is required for virtualized listboxes to set the maximum height of the listbox.
      */
     maxListboxHeight?: number;
-  };
+  } & MultiSelectAutoCompleteProps<T>;
 
 export function useAutocomplete<T extends object>(originalProps: UseAutocompleteProps<T>) {
   const globalContext = useProviderContext();
@@ -186,14 +192,13 @@ export function useAutocomplete<T extends object>(originalProps: UseAutocomplete
     errorMessage,
     onOpenChange,
     onClose,
-    isReadOnly = false,
     ...otherProps
   } = props;
 
   // Setup filter function and state.
   const {contains} = useFilter(filterOptions);
 
-  let state = useComboBoxState({
+  let state = useMultiselectAutocompleteState({
     ...originalProps,
     children,
     menuTrigger,
@@ -208,13 +213,6 @@ export function useAutocomplete<T extends object>(originalProps: UseAutocomplete
       }
     },
   });
-
-  state = {
-    ...state,
-    ...(isReadOnly && {
-      disabledKeys: new Set([...state.collection.getKeys()]),
-    }),
-  };
 
   // Setup refs and get props for child elements.
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -233,7 +231,7 @@ export function useAutocomplete<T extends object>(originalProps: UseAutocomplete
     validationErrors,
   } = useComboBox(
     {
-      validationBehavior,
+      // validationBehavior,
       ...originalProps,
       inputRef,
       buttonRef,
@@ -259,7 +257,7 @@ export function useAutocomplete<T extends object>(originalProps: UseAutocomplete
         ref: inputRef,
         wrapperRef: inputWrapperRef,
         onClick: () => {
-          if (!state.isOpen && !!state.selectedItem) {
+          if (!state.isOpen) {
             state.open();
           }
         },
@@ -334,7 +332,7 @@ export function useAutocomplete<T extends object>(originalProps: UseAutocomplete
     const item = state.collection.getItem(key);
 
     if (item && state.inputValue !== item.textValue) {
-      state.setSelectedKey(key);
+      // state.setSelectedKeys(new Set([...state.selectedKeys, key]));
       state.setInputValue(item.textValue);
     }
   }, [inputRef.current]);
@@ -416,13 +414,18 @@ export function useAutocomplete<T extends object>(originalProps: UseAutocomplete
       },
       onPress: (e: PressEvent) => {
         slotsProps.clearButtonProps?.onPress?.(e);
-        if (state.selectedItem) {
-          state.setSelectedKey(null);
+        if (state.selectedKeys.size > 0) {
+          state.setInputValue("");
+          state.setSelectedKeys(new Set());
+        } else {
+          if (allowsCustomValue) {
+            state.setInputValue("");
+          }
         }
-        state.setInputValue("");
         state.open();
       },
-      "data-visible": !!state.selectedItem || state.inputValue?.length > 0,
+      "data-visible": isOpen && state.inputValue?.length > 0,
+      // "data-visible": !!state.selectedItem || state.inputValue?.length > 0,
       className: slots.clearButton({
         class: clsx(classNames?.clearButton, slotsProps.clearButtonProps?.className),
       }),

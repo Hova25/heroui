@@ -34,6 +34,7 @@
     "postpack": "clean-package restore"
   },
   "dependencies": {
+    "@nextui-org/use-aria-multiselect": "workspace:*",
     "@react-aria/i18n": "3.12.4",
     "@react-aria/interactions": "3.22.5",
     "@react-aria/label": "3.7.13",
@@ -41,10 +42,15 @@
     "@react-aria/menu": "3.16.0",
     "@react-aria/selection": "3.21.0",
     "@react-aria/utils": "3.26.0",
+    "@react-stately/collections": "3.12.0",
+    "@react-stately/combobox": "3.10.1",
     "@react-stately/form": "3.1.0",
     "@react-stately/list": "3.11.1",
     "@react-stately/menu": "3.9.0",
+    "@react-stately/selection": "^3.18.0",
+    "@react-stately/utils": "3.10.5",
     "@react-types/button": "3.10.1",
+    "@react-types/combobox": "3.13.1",
     "@react-types/overlays": "3.8.11",
     "@react-types/select": "3.9.8",
     "@react-types/shared": "3.26.0"
