@@ -1,5 +1,5 @@
 import {FilterFn} from "@react-stately/combobox";
-import {RefObject, useEffect, useMemo, useState} from "react";
+import {RefObject, useMemo, useState} from "react";
 import {MenuTriggerAction} from "@react-types/combobox";
 import {
   AsyncLoadable,
@@ -94,15 +94,23 @@ export function useMultiselectAutocompleteState<T extends object>(
         props.onSelectionChange(keys);
       }
     }
-    if (props.onInputChange) {
-      props.onInputChange("");
-    } else {
-      setInputValue("");
-    }
 
     // Multi select stays open after item selection
     if (props.selectionMode === "single") {
       triggerState.close();
+      if (keys && keys !== "all" && keys.keys()?.next()?.value) {
+        const item = listState.selectionManager.getItemProps(keys.keys().next().value);
+
+        setInputValue(item.textValue || item.children);
+      }
+    }
+
+    if (props.selectionMode === "multiple") {
+      if (props.onInputChange) {
+        props.onInputChange("");
+      } else {
+        setInputValue("");
+      }
     }
   };
 
@@ -141,14 +149,6 @@ export function useMultiselectAutocompleteState<T extends object>(
     setInputValue("");
   };
 
-  useEffect(() => {
-    if (props.menuTrigger === "focus" || (props.menuTrigger === "input" && isFocused)) {
-      open();
-    } else {
-      close();
-    }
-  }, [isFocused, props.menuTrigger]);
-
   const toggle = (focusStrategy: FocusStrategy | null = null) => {
     if (listState.collection.size !== 0) {
       setFocusStrategy(focusStrategy);
@@ -156,7 +156,7 @@ export function useMultiselectAutocompleteState<T extends object>(
       validationState.commitValidation();
     }
   };
-  // todo : optimise this, optimise back and next to, check useComboboxState
+
   const commit = () => {
     const activeItem =
       props.inputRef?.current?.attributes.getNamedItem("aria-activedescendant")?.value;
@@ -166,12 +166,23 @@ export function useMultiselectAutocompleteState<T extends object>(
 
       if (listState.selectedKeys.has(selectedKey)) {
         listState.selectedKeys.delete(selectedKey);
+        if (props.selectionMode === "single") {
+          setInputValue("");
+        }
       } else {
-        listState.selectedKeys.add(selectedKey);
+        if (props.selectionMode === "single") {
+          listState.selectionManager.replaceSelection(selectedKey);
+        } else {
+          listState.selectedKeys.add(selectedKey);
+        }
       }
       onSelectionChange(listState.selectedKeys);
       validationState.commitValidation();
     }
+  };
+
+  const revert = () => {
+    close();
   };
 
   const displayedCollection =
@@ -190,9 +201,10 @@ export function useMultiselectAutocompleteState<T extends object>(
     inputValue,
     setInputValue,
     commit,
+    revert,
     placeholder:
       listState.selectionMode === "multiple" && listState.selectedKeys.size > 0
-        ? listState.selectedItems?.map((item) => item.textValue).join(", ")
+        ? listState.selectedItems?.map((item) => item.textValue || item).join(", ")
         : "",
     collection: displayedCollection,
     ...(props.isReadOnly && {disabledKeys: new Set([...listState.collection.getKeys()])}),

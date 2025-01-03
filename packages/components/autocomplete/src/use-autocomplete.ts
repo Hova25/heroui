@@ -169,6 +169,7 @@ export function useAutocomplete<T extends object>(originalProps: UseAutocomplete
     },
     children,
     selectorIcon,
+    selectionMode = "single",
     clearIcon,
     scrollRef: scrollRefProp,
     defaultFilter,
@@ -213,6 +214,7 @@ export function useAutocomplete<T extends object>(originalProps: UseAutocomplete
     validationBehavior,
     shouldCloseOnBlur,
     allowsEmptyCollection,
+    selectionMode,
     defaultFilter: defaultFilter && typeof defaultFilter === "function" ? defaultFilter : contains,
     onOpenChange: (open, menuTrigger) => {
       onOpenChange?.(open, menuTrigger);
