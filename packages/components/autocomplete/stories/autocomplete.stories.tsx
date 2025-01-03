@@ -1,6 +1,6 @@
-import type {ValidationResult} from "@react-types/shared";
+import type {Selection, ValidationResult} from "@react-types/shared";
 
-import React, {Key} from "react";
+import React from "react";
 import {Meta} from "@storybook/react";
 import {useForm} from "react-hook-form";
 import {useFilter} from "@react-aria/i18n";
@@ -170,7 +170,7 @@ const DynamicTemplate = ({color, variant, ...args}: AutocompleteProps<Animal>) =
   <Autocomplete
     className="max-w-xs"
     color={color}
-    defaultItems={animalsData}
+    items={animalsData}
     label="Favorite Animal"
     variant={variant}
     {...args}
@@ -263,7 +263,7 @@ const FullyControlledTemplate = () => {
       items={fieldState.items}
       label="Favorite Animal"
       placeholder="Search an animal"
-      selectedKey={fieldState.selectedKey}
+      selectedKeys={[fieldState.selectedKey]}
       variant="bordered"
       onInputChange={onInputChange}
       onOpenChange={onOpenChange}
@@ -413,8 +413,8 @@ const AsyncLoadingTemplate = ({color, variant, ...args}: AutocompleteProps<Pokem
     <Autocomplete
       className="max-w-xs"
       color={color}
-      defaultItems={items}
       isLoading={isLoading}
+      items={items}
       label="Pick a Pokemon"
       placeholder="Select a Pokemon"
       scrollRef={scrollerRef}
@@ -435,7 +435,7 @@ const StartContentTemplate = ({color, variant, ...args}: AutocompleteProps) => (
   <Autocomplete
     className="max-w-xs"
     color={color}
-    defaultSelectedKey={"cat"}
+    defaultSelectedKeys={["cat"]}
     label="Favorite Animal"
     startContent={<PetBoldIcon className="text-xl" />}
     variant={variant}
@@ -449,7 +449,7 @@ const EndContentTemplate = ({color, variant, ...args}: AutocompleteProps) => (
   <Autocomplete
     className="max-w-xs"
     color={color}
-    defaultSelectedKey={"cat"}
+    defaultSelectedKeys={["cat"]}
     endContent={<PetBoldIcon className="text-xl" />}
     label="Favorite Animal"
     variant={variant}
@@ -463,7 +463,7 @@ const DynamicTemplateWithDescriptions = ({color, variant, ...args}: Autocomplete
   <Autocomplete
     className="max-w-xs"
     color={color}
-    defaultItems={animalsData}
+    items={animalsData}
     label="Favorite Animal"
     variant={variant}
     {...args}
@@ -544,10 +544,10 @@ const ItemStartContentTemplate = ({color, variant, ...args}: AutocompleteProps<A
 );
 
 const ControlledTemplate = ({color, variant, ...args}: AutocompleteProps<Animal>) => {
-  const [value, setValue] = React.useState<Key | null>("cat");
+  const [value, setValue] = React.useState<Selection>(new Set(["cat"]));
 
-  const handleSelectionChange = (key: Key | null) => {
-    setValue(key);
+  const handleSelectionChange = (selection: Selection) => {
+    setValue(selection);
   };
 
   return (
@@ -555,9 +555,9 @@ const ControlledTemplate = ({color, variant, ...args}: AutocompleteProps<Animal>
       <Autocomplete
         fullWidth
         color={color}
-        defaultItems={animalsData}
+        items={animalsData}
         label="Favorite Animal"
-        selectedKey={value}
+        selectedKeys={value}
         variant={variant}
         onSelectionChange={handleSelectionChange}
         {...args}
@@ -573,7 +573,7 @@ const CustomItemsTemplate = ({color, variant, ...args}: AutocompleteProps<User>)
   <Autocomplete
     className="max-w-xs mt-8"
     color={color}
-    defaultItems={usersData}
+    items={usersData}
     label="Assigned to"
     placeholder="Select a user"
     variant={variant}
@@ -695,7 +695,7 @@ const CustomStylesTemplate = ({color, variant, ...args}: AutocompleteProps<User>
         listboxWrapper: "max-h-[400px]",
       }}
       color={color}
-      defaultItems={usersData}
+      items={usersData}
       label="Assigned to"
       listboxProps={{
         itemClasses: {
@@ -745,13 +745,13 @@ const CustomStylesWithCustomItemsTemplate = ({color, ...args}: AutocompleteProps
         listboxWrapper: "max-h-[400px]",
       }}
       color={color}
-      defaultItems={usersData}
       inputProps={{
         classNames: {
           input: "ml-1",
           inputWrapper: "h-[48px]",
         },
       }}
+      items={usersData}
       listboxProps={{
         hideSelectedIcon: true,
         itemClasses: {
@@ -880,6 +880,15 @@ export const Default = {
   },
 };
 
+export const Multiple = {
+  render: Template,
+  args: {
+    ...defaultProps,
+    selectionMode: "multiple",
+    placeholder: "Select an animal",
+  },
+};
+
 export const Required = {
   render: FormTemplate,
 
@@ -966,7 +975,7 @@ export const IsInvalid = {
     ...defaultProps,
     isInvalid: true,
     variant: "bordered",
-    defaultSelectedKey: "dog",
+    defaultSelectedKey: ["dog"],
     errorMessage: "Please select a valid animal",
   },
 };
