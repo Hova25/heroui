@@ -264,6 +264,7 @@ const FullyControlledTemplate = () => {
       label="Favorite Animal"
       placeholder="Search an animal"
       selectedKeys={[fieldState.selectedKey]}
+      setInputValue={() => {}}
       variant="bordered"
       onInputChange={onInputChange}
       onOpenChange={onOpenChange}

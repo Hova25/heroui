@@ -23,7 +23,7 @@ import {ariaShouldCloseOnInteractOutside} from "@heroui/aria-utils";
 import {
   MultiSelectAutoCompleteProps,
   useMultiselectAutocompleteState,
-} from "@nextui-org/use-aria-multiselect-autocomplete";
+} from "@heroui/use-aria-multiselect-autocomplete";
 
 interface Props<T> extends Omit<HTMLHeroUIProps<"input">, keyof ComboBoxProps<T>> {
   /**

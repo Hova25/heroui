@@ -18,7 +18,7 @@ import {
   Node,
 } from "@react-types/shared";
 import {OverlayTriggerProps} from "@react-types/overlays";
-import {useMultiSelectListState} from "@nextui-org/use-aria-multiselect";
+import {useMultiSelectListState} from "@heroui/use-aria-multiselect";
 import {useControlledState} from "@react-stately/utils";
 import {useMenuTriggerState} from "@react-stately/menu";
 import {useFormValidationState} from "@react-stately/form";
@@ -102,7 +102,7 @@ export function useMultiselectAutocompleteState<T extends object>(
     if (props.selectionMode === "single") {
       triggerState.close();
       if (keys && keys !== "all" && keys.keys()?.next()?.value) {
-        const item = listState.selectionManager.getItemProps(keys.keys().next().value);
+        const item = listState.selectionManager.getItemProps(keys.keys().next().value!);
 
         setInputValue(item.textValue || item.children);
         close();
