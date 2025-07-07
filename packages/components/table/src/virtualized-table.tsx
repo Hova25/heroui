@@ -1,6 +1,6 @@
 import type {UseTableProps} from "./use-table";
 
-import {useCallback, useLayoutEffect, useRef, useState} from "react";
+import {useCallback, useRef} from "react";
 import {Spacer} from "@heroui/spacer";
 import {forwardRef} from "@heroui/system";
 import {useVirtualizer} from "@tanstack/react-virtual";
@@ -66,16 +66,6 @@ const VirtualizedTable = forwardRef<"table", TableProps>((props, ref) => {
 
   const parentRef = useRef(null);
 
-  const [headerHeight, setHeaderHeight] = useState(0);
-
-  const headerRef = useRef<HTMLTableSectionElement>(null);
-
-  useLayoutEffect(() => {
-    if (headerRef.current) {
-      setHeaderHeight(headerRef.current.getBoundingClientRect().height);
-    }
-  }, [headerRef]);
-
   const rowVirtualizer = useVirtualizer({
     count,
     getScrollElement: () => parentRef.current,
@@ -95,11 +85,11 @@ const VirtualizedTable = forwardRef<"table", TableProps>((props, ref) => {
           <Component
             {...tableProps}
             style={{
-              height: `calc(${rowVirtualizer.getTotalSize() + headerHeight}px)`,
+              height: `${rowVirtualizer.getTotalSize()}px`,
               ...tableProps.style,
             }}
           >
-            <TableRowGroup ref={headerRef} classNames={values.classNames} slots={values.slots}>
+            <TableRowGroup classNames={values.classNames} slots={values.slots}>
               {collection.headerRows.map((headerRow) => (
                 <TableHeaderRow
                   key={headerRow?.key}
